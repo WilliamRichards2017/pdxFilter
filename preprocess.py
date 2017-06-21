@@ -31,7 +31,6 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     for s in p_examples:
         sent = Sentence(s).build_sentence(s)
         positive_examples.append(Sentence(s).build_sentence(s))
-        print(sent)
 
     n_examples =list(open(negative_data_file, "r").readlines())
     n_examples = [s.strip() for s in n_examples]
@@ -39,7 +38,6 @@ def load_data_and_labels(positive_data_file, negative_data_file):
 
     for n in n_examples:
         sent = Sentence(s).build_sentence(n)
-        print(sent)
         negative_examples.append(sent)
         
     x_text = positive_examples + negative_examples
@@ -56,13 +54,13 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
     num_batches_per_epoch = int((len(data)-1)/batch_size)+1
     for epoch in range(num_epochs):
         if shuffle:
-            suffle_indices = np.random.permutation(np.arange(data_size))
+            shuffle_indices = np.random.permutation(np.arange(data_size))
             shuffled_data = data[shuffle_indices]
         else:
             shuffled_data = data
         for batch_num in range(num_batches_per_epoch):
             start_index = batch_num * batch_size
-            end_index = min((batch_num+1)*batch_size, datasize)
+            end_index = min((batch_num+1)*batch_size, data_size)
             yield shuffled_data[start_index:end_index]
 
 ## Manual crossvalidation                                                                                                           

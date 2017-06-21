@@ -1,10 +1,10 @@
 ##convolutional neural network 
 import tensorflow as tf
 
-class CNN(object):
+class cnn(object):
 
     ## Network definition
-    def __init__(self, sequence_length, num,classes, vocab_size, embedding_size, filter_sizes, num_filters):
+    def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0):
         self.sequence_length=sequence_length
         self.num_classes=num_classes
         self.vocab_size=vocab_size
@@ -13,7 +13,8 @@ class CNN(object):
         self.num_filters = num_filters
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, num_classes], name="input_y")
-        self.droupout_keep_prob - tf.placeholder(tf.float32, name="dropout_keep_prob")
+        self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
+        l2_loss = tf.constant(0.0)
         
         ## define embedding layer
         with tf.device('/cpu:0'), tf.name_scope("embedding"):
@@ -27,7 +28,7 @@ class CNN(object):
             with tf.name_scope("conv-maxpool-%s" % filter_size):
                 filter_shape = [filter_size, embedding_size, 1, num_filters]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
-                b = tf.Variable()
+                b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name='b')
                 conv = tf.nn.conv2d(self.embedded_chars_expanded, W, strides=[1,1,1,1], padding="VALID", name="conv")
                 h = tf.nn.relu(tf.nn.bias_add(conv,b),name="relu")
                 ## Max pooling
@@ -36,7 +37,7 @@ class CNN(object):
                 
         ## combine all features into one big vector        
         num_filters_total = num_filters *   len(filter_sizes)
-        self.h_pool = tf.concat(3, pooled_outputs)
+        self.h_pool = tf.concat(pooled_outputs,3)
         self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
         
         ## droupout
@@ -46,13 +47,13 @@ class CNN(object):
         with tf.name_scope("output"):
             W = tf.Variable(tf.truncated_normal([num_filters_total, num_classes], stddev=0.1), name="W")
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
-            self.scores = tf.cnn.pynn.xw_plus_b(self.h_drop, W, b, name="scores")
+            self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
             
         # calculate entropy loss
         with tf.name_scope("loss"):
-            losses = tf.nn.softmax_cross_entropy_with_logits(self.scores, self,input_y)
-            self.loss = tf.reduce_mean(losses)
+            losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)
+            self.loss = tf.reduce_mean(losses) + l2_reg_lambda*l2_loss
             
         ## calculate accuracy
         with tf.name_scope("accuracy"):
