@@ -43,9 +43,6 @@ print("")
 ## Load data
 x_text, y = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
 
-for x in x_text:
-    print(x)
-
 max_document_length = max([len(x.split(" ")) for x in x_text])
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 x = np.array(list(vocab_processor.fit_transform(x_text)))
