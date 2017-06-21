@@ -9,30 +9,26 @@ class Sentence:
     dictionary = list(product(alphabet, repeat=3))
     def __init__(self, read):
         self.read = read
-        self.sentece
+        
 
-    def build_sentence(read):
+    def build_sentence(self, read):
         sentence = []
         for x in range(0, len(read)-3):
             word = read[x] + read[x+1] + read[x+2]
             sentence.append(word)
         return sentence
 
-for d in Sentence.dictionary:
-    print(d)
+    def build_input_matrix(self, read):
+        sent = self.build_sentence(read)
+        a = np.zeros(shape=(len(sent),len(Sentence.dictionary)))
 
-sent = Sentence.build_sentence("acgtacgtacgtacgt")
+        for i in range(0,len(sent)):
+            for j in range(0,len(Sentence.dictionary)):
+                ##print("comparing", sent[i], "and", ''.join(Sentence.dictionary[j]), "\n")
+                if sent[i] == ''.join(Sentence.dictionary[j]):
+                    a[i][j] = 1
+        return a
 
-for s in sent:
-    print(s)
 
-a = np.zeros(shape=(len(sent),len(Sentence.dictionary)))
 
-for i in range(0,len(sent)):
-    for j in range(0,len(Sentence.dictionary)):
-        print("comparing", sent[i], "and", ''.join(Sentence.dictionary[j]), "\n")
-        if sent[i] == ''.join(Sentence.dictionary[j]):
-            print("its a match bb")
-            a[i][j] = 1
 
-print(np.matrix(a))
