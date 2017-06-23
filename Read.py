@@ -18,8 +18,15 @@ class Read:
 
 
 
+
+##file = '/uufs/chpc.utah.edu/common/home/marth-ucgdstor/projects/pdxFilter/datasets/human/tumor_prechemo_1.txt.gz'
+
+##file = '/uufs/chpc.utah.edu/common/home/marth-ucgdstor/projects/pdxFilter/datasets/pdx/prechemo_treated_pdx_1.txt.gz'
+
+
 ##file = '/uufs/chpc.utah.edu/common/home/marth-ucgdstor/projects/pdxFilter/datasets/human/blood_1.txt.gz'
-file = '/uufs/chpc.utah.edu/common/home/marth-ucgdstor/projects/pdxFilter/datasets/pdx/prechemo_treated_pdx_1.txt.gz'
+file = '/uufs/chpc.utah.edu/common/home/marth-ucgdstor/projects/pdxFilter/datasets/mouse/nod_scid_1.txt.gz'
+
 
 outfile = 'unzipped.fastq'
 
@@ -33,17 +40,22 @@ outF.close()
 
 print("\nTime spent unzipping: {0:.3f} min.".format((time.time() - start_time) / float(60)))
 
-f = open('neg_sequences.txt', 'w')
+start_time = time.time()
 
+f = open('neg_sequences.txt', 'w')
+i = 0 
 from Bio import SeqIO
 for record in SeqIO.parse(outfile, "fastq"):
     ##print(record.seq)
     f.write(str(record.seq)+'\n')
+    if i == 10000:
+        break
+    i+=1
 
 f.close()
 
 
-print("\nTime spent filtering: {0:.3f} min.".format((time.time() - start_time) / float(60)))
+print("\nTime spent sampling reads: {0:.3f} min.".format((time.time() - start_time) / float(60)))
 
 
 
