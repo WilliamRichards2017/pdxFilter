@@ -25,7 +25,7 @@ f = open('pos.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(poutfile, "fastq"):
-    if i == 200000:
+    if i == 100000:
         break
     f.write(str(record.seq)+'\n')
     i+=1
@@ -44,7 +44,7 @@ print("\nTime spent sampling pos reads: {0:.3f} min.".format((time.time() - star
 start_time = time.time()
 
 
-noutfile = 'good_quality_pos.fastq'
+noutfile = 'good_quality_neg.fastq'
 start_time = time.time()
 
 '''inF = gzip.open(files[2], 'rb')
@@ -57,8 +57,8 @@ outF.close()
 f = open('neg.txt', 'w')
 i = 0
 
-for record in SeqIO.parse('nunzipped.fastq', "fastq"):
-    if i == 200000:
+for record in SeqIO.parse(noutfile, "fastq"):
+    if i == 100000:
         break
     f.write(str(record.seq)+'\n')
     i+=1
