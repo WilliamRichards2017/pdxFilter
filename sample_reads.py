@@ -11,48 +11,66 @@ for arg in sys.argv:
 
 start_time = time.time()
 
-poutfile = 'unzipped.fastq'
+poutfile = 'good_quality_pos.fastq'
 start_time = time.time()
-inF = gzip.open(files[1], 'rb')
+
+'''inF = gzip.open(files[1], 'rb')
 outF = open(poutfile, 'wb')
 outF.write( inF.read() )
 inF.close()
 outF.close()
-
+'''
 
 f = open('pos.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(poutfile, "fastq"):
-    ##print(record.seq)                                                                                                                                  
-    f.write(str(record.seq)+'\n')
-    if i == 1000:
+    if i == 200000:
         break
+    f.write(str(record.seq)+'\n')
     i+=1
 
+
+'''##Filter reads by qaulity of greater than 30
+good_reads = (rec for rec in SeqIO.parse(poutfile, "fastq") 
+              if min(rec.letter_annotations["phred_quality"]) >= 30)
+count = SeqIO.write(good_reads, "good_quality_pos.fastq", "fastq")
+print("Saved %i reads" % count)
+'''
+    
 f.close()
 print("\nTime spent sampling pos reads: {0:.3f} min.".format((time.time() - start_time) / float(60)))
 
 start_time = time.time()
 
 
-noutfile = 'nunzipped.fastq'
+noutfile = 'good_quality_pos.fastq'
 start_time = time.time()
-inF = gzip.open(files[2], 'rb')
-outF = open(poutfile, 'wb')
+
+'''inF = gzip.open(files[2], 'rb')
+outF = open(noutfile, 'wb')
 outF.write( inF.read() )
 inF.close()
 outF.close()
-
+'''
 
 f = open('neg.txt', 'w')
 i = 0
 
-for record in SeqIO.parse(noutfile, "fastq"):
-    f.write(str(record.seq)+'\n')
-    if i == 1000:
+for record in SeqIO.parse('nunzipped.fastq', "fastq"):
+    if i == 200000:
         break
+    f.write(str(record.seq)+'\n')
     i+=1
+
+
+'''good_reads = (rec for rec in SeqIO.parse(noutfile, "fastq")
+              if min(rec.letter_annotations["phred_quality"]) >= 20)
+count = SeqIO.write(good_reads, "good_quality_neg.fastq", "fastq")
+print("Saved %i reads" % count)
+'''
+
+
 
 f.close()
 

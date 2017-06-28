@@ -9,24 +9,25 @@ import os
 from tensorflow.contrib import learn
 from sklearn.preprocessing import OneHotEncoder
 
+start_time = time.time()
 
 tf.flags.DEFINE_float("dev_sample_percentage", .9, "Percentage of traning data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", "pos_sequences.txt", "Data source for positive data (human reads)")
-tf.flags.DEFINE_string("negative_data_file", "neg2_sequences.txt", "Data source for \
+tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for positive data (human reads)")
+tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for \
 negative data (mouse reads)")
 
 # Model Hyperparameters
-tf.flags.DEFINE_integer("embedding_dim", 4, "Dimensionality of character embedding (default: 128)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
-tf.flags.DEFINE_integer("num_filters", 16, "Number of filters per filter size (default: 128)")
+tf.flags.DEFINE_integer("embedding_dim", 125, "Dimensionality of character embedding (default: 128)")
+tf.flags.DEFINE_string("filter_sizes", "2,3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
+tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.05, "L2 regularization lambda (default: 0.0)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 150, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 200, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 1000, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 
 # Misc Parameters
@@ -50,11 +51,13 @@ max_document_length = max([len(x.split(" ")) for x in x_text])
 
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 
-## use numpy to perform 1hot encoding
+
 x = np.array(list(vocab_processor.fit_transform(x_text)))
-##enc = OneHotEncoder()
-##enc.fit(x)
-##enc.transform(x).toarray()
+
+## use numpy to perform 1hot encoding
+'''enc = OneHotEncoder()
+enc.fit(x)
+enc.transform(x).toarray()'''
 
 ## Shuffle data
 np.random.seed(421)
@@ -178,6 +181,8 @@ with tf.Graph().as_default():
                 if current_step % FLAGS.evaluate_every==0:
                     print("\nEvaluation:")
                     dev_step(x_dev, y_dev, writer=dev_summary_writer)
+                    print("\nTime spent sampling pos reads: {0:.3f} min.".format((time.time() - start_time) / float(60)))
+
                     print("")
                 if current_step % FLAGS.checkpoint_every ==0:
                     path = saver.save(sess, checkpoint_prefix, global_step=current_step)
