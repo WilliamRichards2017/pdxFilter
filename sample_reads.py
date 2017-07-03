@@ -25,7 +25,7 @@ f = open('pos.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(poutfile, "fastq"):
-    if i == 100000:
+    if i == 1000:
         break
     f.write(str(record.seq)+'\n')
     i+=1
@@ -58,7 +58,7 @@ f = open('neg.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(noutfile, "fastq"):
-    if i == 100000:
+    if i == 1000:
         break
     f.write(str(record.seq)+'\n')
     i+=1

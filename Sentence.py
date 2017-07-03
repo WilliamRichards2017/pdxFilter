@@ -5,7 +5,7 @@ from string import ascii_lowercase
 
 
 class Sentence:
-    alphabet = ['a','c','g','t']
+    alphabet = ['a','c','g','t', 'n']
     dictionary = list(product(alphabet, repeat=3))
     def __init__(self, read):
         self.read = read

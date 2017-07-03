@@ -37,7 +37,7 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     negative_examples=[]
 
     for n in n_examples:
-        sent = Sentence(s).build_sentence(n)
+        sent = Sentence(n).build_sentence(n)
         negative_examples.append(sent)
         
     x_text = positive_examples + negative_examples
