@@ -1,5 +1,6 @@
 import tensorflow as tf
 from Sentence import Sentence
+import numpy as np
 '''
 input > wieght > hidden layer 1 > activation function > weights > hidden layer 2 > activation function 2 > weights > output
 
@@ -17,27 +18,42 @@ one-hot encoding useful for multiclass classification
 '''
 
 ## import exampel tensorflow data set of hand written digits
-from tensorflow.examples.tutorials.mnist import input_data
+##from tensorflow.examples.tutorials.mnist import input_data
 
-mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+##mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+
+from create_featureset import create_feature_sets_and_labels
+
+train_x, train_y, test_x, test_y = create_feature_sets_and_labels('pos.txt','neg.txt')
 
 ## define number of nodes in our hidden layer
-n_nodes_hl1 = 500
-n_nodes_hl2 = 500
-n_nodes_hl3 = 500
+n_nodes_hl1 = 1000
+n_nodes_hl2 = 1000
+n_nodes_hl3 = 1000
 
 ### Tensorflow can actually derive number of classes, but if we know how many classes we should have, it will sspeed up process
-n_classes = 10
+n_classes = 2
 
 '''cant load all of data into memory at once for most sets, so we gotta use batches'''
 
 batch_size = 100
+total_batches = int(100000/batch_size)
+hm_epochs = 10
 
 ##  height by width, but we flatten the 28*28 matrix
 ##  We also dont need to define dimmesnsions, if we do and pass in invalid dimmensions, tensorflow will throw error
 ##  else, we can handle matrices fo unknown sizes
-x = tf.placeholder('float',[None, 784])
+x = tf.placeholder('float',[None, len(train_x[0])])
 y = tf.placeholder('float')
+
+def init_process(fin, fout):
+    outfile = open(fout,'a')
+    with open(fin, buffering=200000, encoding='latin-1') as f:
+        try:
+            for line in f:
+                line = line.replace('"','')
+                initial_polarity = line.split
+
 
 def neural_network_model(data):
     ## define init weights as random tensor of shape equal to image size by number of nodes in first hidden layer
@@ -47,7 +63,7 @@ def neural_network_model(data):
 
     ## We need biases to overcome the problem of inputs of 0, so neurons can fire even if inputs are 0
     
-    hidden_1_layer = {'weights':tf.Variable(tf.random_normal([784, n_nodes_hl1])),
+    hidden_1_layer = {'weights':tf.Variable(tf.random_normal([len(train_x[0]), n_nodes_hl1])),
                       'biases':tf.Variable(tf.random_normal([n_nodes_hl1]))}
 
     hidden_2_layer = {'weights':tf.Variable(tf.random_normal([n_nodes_hl1, n_nodes_hl2])),
@@ -72,6 +88,8 @@ def neural_network_model(data):
     l3 = tf.nn.relu(l1)
 
     output = tf.add(tf.matmul(l3, output_layer['weights']), output_layer['biases'])
+    saver = tf.train.Saver()
+    tf_log = 'tf.log'
     return output
     ## finish decleration of computational tensor graph for our NN model
 
@@ -87,29 +105,54 @@ def train_neural_network(x):
     ## default learning rate - 0.001
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 10
-
     ## begin session
     ## NOTE: using 'with' syntax will automatically close the sessions when were done 
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
+
+        try:
+            epoch = int(open(tf_log, 'r').read().split('\n')[-2])+1
+        except:
+            epoch = 1
         
+
+        while epoch <= hm_epochs:
+            if epoch != 1:
+                saver.restore(sess, 'model.ckpt')
+            epoch_loss = 1
+            with open('lexicon.pickle', 'rb') as f:
+                lexicon = pickle.load(f)
+            with open('train_set_shuffled.csv', buffering=20000) as f:
+                batch_x = []
+                batch_y = []
+                batches_run = 0
+            for line in f:
+                label = line.split(':::')[0]
         ## Beging traning data
-        for epoch in range(hm_epochs):
+        '''for epoch in range(hm_epochs):
             epoch_loss = 0
             ## '_' short hand for variable we dont actually care about
-            for _ in range(int(mnist.train.num_examples/batch_size)):
-                ## use batches to avoid loading all data into memory
-                x_epoch,y_epoch = mnist.train.next_batch(batch_size)
+            
+            i = 0
+            while i <  len(train_x):
+                start = i
+                end = i + batch_size
+                
+                batch_x = np.array(train_x[start:end])
+                batch_y = np.array(train_y[start:end])
+
                 ##run through our data to minimize our cost with optimizer function which will modify weights in our layer
-                _, c = sess.run([optimizer, cost], feed_dict={x: x_epoch, y:y_epoch})
+                _, c = sess.run([optimizer, cost], feed_dict={x: batch_x, y:batch_y})
                 epoch_loss += c
+                i += batch_size
             print("Epoch", epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
+           '''
+            
 
         ## calculate all accuracies and evaluate accuracy of our model
         correct = tf.equal(tf.argmax(prediction,1), tf.argmax(y,1))
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print('Accuracy:', accuracy.eval({x:mnist.test.images, y:mnist.test.labels}))
+        print('Accuracy:', accuracy.eval({x:test_x, y:test_y}))
 
 train_neural_network(x)
 
@@ -121,7 +164,7 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 import random
 import pickle
-from collecitons import counter
+from collections import Counter
 
 hm_lines = 1000000
 

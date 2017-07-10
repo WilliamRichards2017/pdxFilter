@@ -16,7 +16,7 @@ lemmatizer = WordNetLemmatizer()
 def create_lexicon(pos, neg):
     lexicon = []
     for file in [pos, neg]:
-        with open(file, 'r') as f:
+        with open(file, 'r', buffering=100000) as f:
             contents = f.readlines()
             for l in contents[:hm_lines]:
                 sent = Sentence(l).build_sentence(l)
@@ -28,8 +28,8 @@ def create_lexicon(pos, neg):
     l2 = []
     for w in w_counts:
     ## Play around with these parameters, idea is we dont care about dna sequences that appear all the time everywhere, or hardly at all                                                                                                                     
-        if 10000 > w_counts[w] > 1000:
-            l2.append(w)
+
+        l2.append(w)
     print(len(l2))
     return l2
 
@@ -58,7 +58,7 @@ def sample_handling(sample, lexicon, classification):
     return feature_set
 
 
-def create_feature_sets_and_labels(pos, neg, test_size=0.1):
+def create_feature_sets_and_labels(pos, neg, outf, test_size=0.1):
     lexicon = create_lexicon(pos,neg)
     features = []
     features += sample_handling('pos.txt', lexicon, [1,0])
@@ -69,16 +69,25 @@ def create_feature_sets_and_labels(pos, neg, test_size=0.1):
     features = np.array(features)
     testing_size = int(test_size*len(features))
     ## syntactic sugar for saying all of the 0'th elemnts of an nd arary, aka all our features
-    train_x = list(features[:,0][:-testing_size])
-    train_y = list(features[:,1][:-testing_size])
+    train_x = np.array(features[:,0][:-testing_size])
+    train_y = np.array(features[:,1][:-testing_size])
 
-    test_x = list(features[:,0][-testing_size:])
-    test_y = list(features[:,1][-testing_size:])
+    test_x = np.array(features[:,0][-testing_size:])
+    test_y = np.array(features[:,1][-testing_size:])
 
-    return train_x, train_y, test_x, test_y
+    ## return train_x, train_y, test_x, test_y
+
+    outfile = open(outf, 'a')
+    for feature in features:
+        outfile.write(feature)
+        print(feature)
+    return features
 
 if __name__ == '__main__':
-    print('main')
-    train_x, train_y, test_x, test_y = create_feature_sets_and_labels('pos.txt', 'neg.txt')
+    '''train_x, train_y, test_x, test_y = create_feature_sets_and_labels('pos.txt', 'neg.txt')
     with open('sentiment_set.pickle', 'wb') as f:
         pickle.dump([train_x, train_y, test_x, test_y], f)
+    '''
+
+    features = create_feature_sets_and_labels('pos.txt', 'neg.txt', 'outfile.txt')
+        

@@ -14,8 +14,13 @@ class Sentence:
     def build_sentence(self, read):
         sentence = ""
         for x in range(0, len(read)-3):
-            word = read[x] + read[x+1] + read[x+2]
+            word = read[x:x+3]
             sentence += word + " "
+        
+        for x in range(0, len(read)-10):
+            word = read[x:x+10]
+            sentence += word + " "
+            
         return sentence
 
     def build_input_matrix(self, read):

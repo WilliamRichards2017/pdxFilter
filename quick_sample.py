@@ -21,24 +21,14 @@ inF.close()
 outF.close()
 '''
 
-f = open('p_test.txt', 'w', buffering=100000)
+f = open('pos.txt', 'w')
 i = 0
 
-reservoir = []
-t, n = 0, 1000000
-
 for record in SeqIO.parse(poutfile, "fastq"):
-    if t < n:
-        reservoir.append(record.seq)
-        t += 1
-    else:
-        m = random.randint(0,t)
-        if m < n:
-            reservoir[m] = itemsa
-
-for seq in reservoir:
-    f.write(str(seq)+'\n')
-   
+    if i == 1000:
+        break
+    f.write(str(record.seq)+'\n')
+    i+=1
 
 
 '''##Filter reads by qaulity of greater than 30
@@ -64,11 +54,11 @@ inF.close()
 outF.close()
 '''
 
-f = open('n_test.txt', 'w', buffering=10000)
+f = open('neg.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(noutfile, "fastq"):
-    if i == 10000:
+    if i == 1000:
         break
     f.write(str(record.seq)+'\n')
     i+=1

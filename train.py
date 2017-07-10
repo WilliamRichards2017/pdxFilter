@@ -11,16 +11,16 @@ from sklearn.preprocessing import OneHotEncoder
 
 start_time = time.time()
 
-tf.flags.DEFINE_float("dev_sample_percentage", .9, "Percentage of traning data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for positive data (human reads)")
-tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for \
+tf.flags.DEFINE_float("dev_sample_percentage", .09, "Percentage of traning data to use for validation")
+tf.flags.DEFINE_string("positive_data_file", "small_pos.txt", "Data source for positive data (human reads)")
+tf.flags.DEFINE_string("negative_data_file", "small_neg.txt", "Data source for \
 negative data (mouse reads)")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 125, "Dimensionality of character embedding (default: 128)")
 tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
 tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
-tf.flags.DEFINE_float("dropout_keep_prob", 0.4, "Dropout keep probability (default: 0.5)")
+tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.00, "L2 regularization lambda (default: 0.0)")
 
 # Training parameters
@@ -188,9 +188,3 @@ with tf.Graph().as_default():
                 if current_step % FLAGS.checkpoint_every ==0:
                     path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                     print("saved modelcheckpoint to {}\n".format(path))
-
-            
-        
-
-
-
