@@ -26,7 +26,7 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.00, "L2 regularization lambda (default:
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 200, "Evaluate model on dev set after this many steps (default: 100)")
+tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 1000, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 
@@ -145,7 +145,7 @@ with tf.Graph().as_default():
                     tcnn.input_y: y_batch,
                     tcnn.dropout_keep_prob: FLAGS.dropout_keep_prob
                 }
-                _, step, summaries, loss, accuracy= sess.run(
+                _, step, summaries, loss, accuracy = sess.run(
                     [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy],
                     feed_dict
                 )
@@ -162,13 +162,14 @@ with tf.Graph().as_default():
                     tcnn.input_y: y_batch,
                     tcnn.dropout_keep_prob: 1.0
                 }
-                step, summaries, loss, accuracy = sess.run(
-                    [global_step, dev_summary_op, tcnn.loss, tcnn.accuracy],
+                step, summaries, loss, accuracy, confidence = sess.run(
+                    [global_step, dev_summary_op, tcnn.loss, tcnn.accuracy, tcnn.confidence],
                     feed_dict
                 )
 
                 time_str = datetime.datetime.now().isoformat()
-                print("{}: step {}, loss {:g}, acc{:g}".format(time_str,step,loss,accuracy))
+                print("{}: step {}, loss {:g}, acc{:g},".format(time_str,step,loss,accuracy))
+                np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
                 if writer:
                     writer.add_summary(summaries, step)
 

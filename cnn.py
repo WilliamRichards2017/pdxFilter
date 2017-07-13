@@ -1,5 +1,6 @@
 ##convolutional neural network 
 import tensorflow as tf
+import pandas as pd
 
 class cnn(object):
 
@@ -49,7 +50,14 @@ class cnn(object):
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
             self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
+            ##self.confidence = tf.concat([tf.self.scores,1), tf.concat([tf.cast(self.predictions, tf.float32), self.input_y],2)],2)
+            temp = tf.concat([self.scores, self.input_y],1)
+            self.confidence = tf.concat([temp, tf.expand_dims(tf.cast(self.predictions, tf.float32),1)],1)
             
+            
+
+
+
         # calculate entropy loss
         with tf.name_scope("loss"):
             losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)
@@ -59,3 +67,6 @@ class cnn(object):
         with tf.name_scope("accuracy"):
             correct_predictions = tf.equal(self.predictions, tf.argmax(self.input_y, 1))
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
+
+            
+            

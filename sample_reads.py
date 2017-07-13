@@ -1,4 +1,5 @@
 from Bio import SeqIO
+from Bio import AlignIO
 from ParseFastQ import ParseFastQ
 import gzip
 import time
@@ -29,15 +30,16 @@ t, n = 0, 1000000
 
 for record in SeqIO.parse(poutfile, "fastq"):
     if t < n:
-        reservoir.append(record.seq)
+        reservoir.append(record)
         t += 1
     else:
         m = random.randint(0,t)
         if m < n:
-            reservoir[m] = itemsa
+            reservoir[m] = record
 
-for seq in reservoir:
-    f.write(str(seq)+'\n')
+for record in reservoir:
+    
+    ##f.write(str(seq)+'\n')
    
 
 

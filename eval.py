@@ -8,8 +8,8 @@ from cnn import cnn
 from tensorflow.contrib import learn
 import csv
 
-tf.flags.DEFINE_string("positive_data_file", "pos_sequences.txt", "Data source for human reads." )
-tf.flags.DEFINE_string("negative_data_file", "neg2_sequences.txt", "Data source for mice reads.")
+tf.flags.DEFINE_string("positive_data_file", "pos_90.txt", "Data source for human reads." )
+tf.flags.DEFINE_string("negative_data_file", "neg_10.txt", "Data source for mice reads.")
 
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size: (default: 64)")
 tf.flags.DEFINE_string("checkpoint_dir", "", "Checkpoint directory from training run")
