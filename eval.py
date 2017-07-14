@@ -8,11 +8,11 @@ from cnn import cnn
 from tensorflow.contrib import learn
 import csv
 
-tf.flags.DEFINE_string("positive_data_file", "pos_90.txt", "Data source for human reads." )
-tf.flags.DEFINE_string("negative_data_file", "neg_10.txt", "Data source for mice reads.")
+tf.flags.DEFINE_string("positive_data_file", "small_pos.txt", "Data source for human reads." )
+tf.flags.DEFINE_string("negative_data_file", "small_neg.txt", "Data source for mice reads.")
 
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size: (default: 64)")
-tf.flags.DEFINE_string("checkpoint_dir", "", "Checkpoint directory from training run")
+tf.flags.DEFINE_string("checkpoint_dir", "/uufs/chpc.utah.edu/common/home/u0401321/classifier/runs/1499288992/checkpoints/", "Checkpoint directory from training run")
 tf.flags.DEFINE_boolean("eval_train", False, "Evaluate on all training data")
 
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow soft device placement")

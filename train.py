@@ -145,14 +145,11 @@ with tf.Graph().as_default():
                     tcnn.input_y: y_batch,
                     tcnn.dropout_keep_prob: FLAGS.dropout_keep_prob
                 }
-                _, step, summaries, loss, accuracy, confidence = sess.run(
-                    [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy, tcnn.confidence],
+                _, step, summaries, loss, accuracy = sess.run(
+                    [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy],
                     feed_dict
                 )
-
-                np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
-
-
+                
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: step {}, loss {:g}, acc{:g}".format(time_str,step,loss,accuracy))
                 train_summary_writer.add_summary(summaries,step)
