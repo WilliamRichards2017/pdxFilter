@@ -12,8 +12,8 @@ from sklearn.preprocessing import OneHotEncoder
 start_time = time.time()
 
 tf.flags.DEFINE_float("dev_sample_percentage", .09, "Percentage of traning data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", "small_pos.txt", "Data source for positive data (human reads)")
-tf.flags.DEFINE_string("negative_data_file", "small_neg.txt", "Data source for \
+tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for positive data (human reads)")
+tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for \
 negative data (mouse reads)")
 
 # Model Hyperparameters
@@ -26,7 +26,7 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.00, "L2 regularization lambda (default:
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
+tf.flags.DEFINE_integer("evaluate_every", 200, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 1000, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 
@@ -145,10 +145,13 @@ with tf.Graph().as_default():
                     tcnn.input_y: y_batch,
                     tcnn.dropout_keep_prob: FLAGS.dropout_keep_prob
                 }
-                _, step, summaries, loss, accuracy = sess.run(
-                    [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy],
+                _, step, summaries, loss, accuracy, confidence = sess.run(
+                    [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy, tcnn.confidence],
                     feed_dict
                 )
+
+                np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
+
 
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: step {}, loss {:g}, acc{:g}".format(time_str,step,loss,accuracy))

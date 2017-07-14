@@ -20,6 +20,11 @@ class Sentence:
         for x in range(0, len(read)-10):
             word = read[x:x+10]
             sentence += word + " "
+
+        '''for x in range(0, len(read)-25):
+            word = read[x:x+25]
+            sentence += word + " "
+        '''
             
         return sentence
 
