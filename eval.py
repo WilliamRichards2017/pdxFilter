@@ -8,8 +8,10 @@ from cnn import cnn
 from tensorflow.contrib import learn
 import csv
 
-tf.flags.DEFINE_string("positive_data_file", "small_pos.txt", "Data source for human reads." )
-tf.flags.DEFINE_string("negative_data_file", "small_neg.txt", "Data source for mice reads.")
+tf.logging.set_verbosity(tf.logging.INFO)
+
+tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for human reads." )
+tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for mice reads.")
 
 tf.flags.DEFINE_string("sample_positive_data_file", "sample_pos.txt", "Sample human reads for evaluation." )
 tf.flags.DEFINE_string("sample_negative_data_file", "sample_neg.txt", "Sample mouse reads for evaluation.")
