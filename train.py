@@ -11,15 +11,15 @@ from sklearn.preprocessing import OneHotEncoder
 
 start_time = time.time()
 
-tf.flags.DEFINE_float("dev_sample_percentage", .09, "Percentage of traning data to use for validation")
+tf.flags.DEFINE_float("dev_sample_percentage", .01, "Percentage of traning data to use for validation")
 tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for positive data (human reads)")
 tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for \
 negative data (mouse reads)")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 125, "Dimensionality of character embedding (default: 128)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
-tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
+tf.flags.DEFINE_string("filter_sizes", "3,5,10", "Comma-separated filter sizes (default: '3,4,5')")
+tf.flags.DEFINE_integer("num_filters", 64, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.00, "L2 regularization lambda (default: 0.0)")
 
@@ -71,6 +71,8 @@ dev_sample_index = -1 * int(FLAGS.dev_sample_percentage*float(len(y)))
 x_train, x_dev = x_shuffled[:dev_sample_index], x_shuffled[dev_sample_index:]
 y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
+
+
 
 ## Start training our model
 with tf.Graph().as_default():

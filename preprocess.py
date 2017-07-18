@@ -25,14 +25,14 @@ def clean_str(string):
 
 def load_data_and_labels(positive_data_file, negative_data_file):
     print("Loading data and labels")
-    p_examples = list(open(positive_data_file, "r", buffering=10000).readlines())
+    p_examples = list(open(positive_data_file, "r", buffering=100000).readlines())
     p_examples = [s.strip() for s in p_examples]
     positive_examples=[]
     for s in p_examples:
         sent = Sentence(s).build_sentence(s)
         positive_examples.append(Sentence(s).build_sentence(s))
 
-    n_examples =list(open(negative_data_file, "r", buffering=10000).readlines())
+    n_examples =list(open(negative_data_file, "r", buffering=100000).readlines())
     n_examples = [s.strip() for s in n_examples]
     negative_examples=[]
 

@@ -11,9 +11,12 @@ import csv
 tf.flags.DEFINE_string("positive_data_file", "small_pos.txt", "Data source for human reads." )
 tf.flags.DEFINE_string("negative_data_file", "small_neg.txt", "Data source for mice reads.")
 
+tf.flags.DEFINE_string("sample_positive_data_file", "sample_pos.txt", "Sample human reads for evaluation." )
+tf.flags.DEFINE_string("sample_negative_data_file", "sample_neg.txt", "Sample mouse reads for evaluation.")
+
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size: (default: 64)")
 tf.flags.DEFINE_string("checkpoint_dir", "/uufs/chpc.utah.edu/common/home/u0401321/classifier/runs/1499288992/checkpoints/", "Checkpoint directory from training run")
-tf.flags.DEFINE_boolean("eval_train", False, "Evaluate on all training data")
+tf.flags.DEFINE_boolean("eval_train", True, "Evaluate on all training data")
 
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of operations on  device")
@@ -32,7 +35,7 @@ if FLAGS.eval_train:
     x_raw, y_test = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
     y_test = np.argmax(y_test, axis=1)
 else:
-    x_raw, y_test = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
+    x_raw, y_test = preprocess.load_data_and_labels(FLAGS.sample_positive_data_file, FLAGS.sample_negative_data_file)
     y_test = np.argmax(y_test, axis=1)
 
 ##vocab_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
@@ -44,7 +47,27 @@ max_document_length = max([len(x.split(" ")) for x in x_raw])
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 x_test = np.array(list(vocab_processor.fit_transform(x_raw)))
 
-print("/nEvaluating...\n")
+
+validation_metrics = {
+     "precision":
+        tf.contrib.learn.MetricSpec(
+            metric_fn=tf.contrib.metrics.streaming_precision,
+            prediction_key=tf.contrib.learn.PredictionKey.CLASSES),
+    "recall":
+        tf.contrib.learn.MetricSpec(
+            metric_fn=tf.contrib.metrics.streaming_recall,
+            prediction_key=tf.contrib.learn.PredictionKey.CLASSES)
+}
+
+validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
+    y_test[0],
+    y_test[1],
+    every_n_steps=50,
+    metrics=validation_metrics)
+
+print("\nEvaluating...\n")
+
+start_time = time.time()
 
 checkpoint_file = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
 graph = tf.Graph()
@@ -82,4 +105,7 @@ out_path = os.path.join(FLAGS.checkpoint_dir, "..", "predictioncs.csv")
 print("Saving evaluation to {0}".format(out_path))
 with open(out_path, 'w') as f:
     csv.writer(f).writerows(predictions_human_readable)
+
+print("\nTime spent evaluating: {0:.3f} min.".format((time.time() - start_time) / float(60)))
+
 

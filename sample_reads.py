@@ -4,7 +4,7 @@ from ParseFastQ import ParseFastQ
 import gzip
 import time
 import sys
-
+import random
 files = []
 for arg in sys.argv: 
     print("arg is {}".format(arg))
@@ -22,24 +22,24 @@ inF.close()
 outF.close()
 '''
 
-f = open('p_test.txt', 'w', buffering=100000)
+f = open('pos.txt', 'w', buffering=100000)
 i = 0
 
 reservoir = []
-t, n = 0, 1000000
+t, n = 0, 4000000
 
 for record in SeqIO.parse(poutfile, "fastq"):
     if t < n:
-        reservoir.append(record)
+        reservoir.append(record.seq)
         t += 1
     else:
         m = random.randint(0,t)
         if m < n:
-            reservoir[m] = record
+            reservoir[m] = record.seq
 
 for record in reservoir:
     
-    ##f.write(str(seq)+'\n')
+    f.write(str(record)+'\n')
    
 
 
@@ -66,14 +66,24 @@ inF.close()
 outF.close()
 '''
 
-f = open('n_test.txt', 'w', buffering=10000)
+f = open('neg.txt', 'w', buffering=100000)
 i = 0
 
+reservoir = []
+t, n = 0, 4000000
+
 for record in SeqIO.parse(noutfile, "fastq"):
-    if i == 10000:
-        break
-    f.write(str(record.seq)+'\n')
-    i+=1
+    if t < n:
+        reservoir.append(record.seq)
+        t += 1
+    else:
+        m = random.randint(0,t)
+        if m < n:
+            reservoir[m] = record.seq
+
+for record in reservoir:
+
+    f.write(str(record)+'\n')
 
 
 '''good_reads = (rec for rec in SeqIO.parse(noutfile, "fastq")

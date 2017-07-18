@@ -61,8 +61,8 @@ def sample_handling(sample, lexicon, classification):
 def create_feature_sets_and_labels(pos, neg, outf, test_size=0.1):
     lexicon = create_lexicon(pos,neg)
     features = []
-    features += sample_handling('pos.txt', lexicon, [1,0])
-    features += sample_handling('neg.txt', lexicon, [0,1])
+    features += sample_handling('small_pos.txt', lexicon, [1,0])
+    features += sample_handling('small_neg.txt', lexicon, [0,1])
     ## if we dont shuffle, we train our network to classify all the positive reads first
     random.shuffle(features)
 
@@ -89,5 +89,5 @@ if __name__ == '__main__':
         pickle.dump([train_x, train_y, test_x, test_y], f)
     '''
 
-    features = create_feature_sets_and_labels('pos.txt', 'neg.txt', 'outfile.txt')
+    features = create_feature_sets_and_labels('small_pos.txt', 'small_neg.txt', 'outfile.txt')
         
