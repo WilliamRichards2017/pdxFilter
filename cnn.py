@@ -17,7 +17,7 @@ class cnn(object):
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
         l2_loss = tf.constant(0.0)
         
-        ## define embedding layer
+        ## define embedding slayer
         with tf.device('/gpu:0'), tf.name_scope("embedding"):
             W = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0), name="W")
             self.embedded_chars = tf.nn.embedding_lookup(W, self.input_x)
@@ -53,11 +53,7 @@ class cnn(object):
             ##self.confidence = tf.concat([tf.self.scores,1), tf.concat([tf.cast(self.predictions, tf.float32), self.input_y],2)],2)
             temp = tf.concat([self.scores, self.input_y],1)
             self.confidence = tf.concat([temp, tf.expand_dims(tf.cast(self.predictions, tf.float32),1)],1)
-            
-            
-
-
-
+            self.ids = self.
         # calculate entropy loss
         with tf.name_scope("loss"):
             losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)

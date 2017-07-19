@@ -1,6 +1,5 @@
 from Bio import SeqIO
 from Bio import AlignIO
-from Bio.Align.Applications import clustalwCommandline
 from ParseFastQ import ParseFastQ
 import gzip
 import time
@@ -23,13 +22,13 @@ inF.close()
 outF.close()
 '''
 
-f = open('pos_90.txt', 'w')
+f = open('p.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(poutfile, "fastq"):
-    if i == 90000:
+    if i == 1000:
         break
-    f.write(str(record.seq)+'\n')
+    f.write("{},{}\n".format(record.id, record.seq))
     i+=1
 
 
@@ -56,13 +55,13 @@ inF.close()
 outF.close()
 '''
 
-f = open('neg_10.txt', 'w')
+f = open('n.txt', 'w')
 i = 0
 
 for record in SeqIO.parse(noutfile, "fastq"):
-    if i == 10000:
+    if i == 1000:
         break
-    f.write(str(record.seq)+'\n')
+    f.write("{},{}\n".format(record.id, record.seq))
     i+=1
 
 

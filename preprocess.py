@@ -27,13 +27,21 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     print("Loading data and labels")
     p_examples = list(open(positive_data_file, "r", buffering=100000).readlines())
     p_examples = [s.strip() for s in p_examples]
+
+    p_id = [s.split(',')[0] for s in p_examples]
+    p_examples = [s.split(',')[1] for s in p_examples]
+
     positive_examples=[]
     for s in p_examples:
         sent = Sentence(s).build_sentence(s)
         positive_examples.append(Sentence(s).build_sentence(s))
 
     n_examples =list(open(negative_data_file, "r", buffering=100000).readlines())
-    n_examples = [s.strip() for s in n_examples]
+    n_id = [s.split(',')[0] for s in n_examples]
+    n_examples = [s.split(',')[1] for s in n_examples]
+    for n in n_examples:
+        print(n)
+    ## n_examples = [s.strip() for s in n_examples]
     negative_examples=[]
 
     for n in n_examples:
@@ -46,7 +54,8 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     positive_labels = [[0,1] for _ in positive_examples]
     negative_labels = [[1,0] for _ in negative_examples]
     y = np.concatenate([positive_labels, negative_labels], 0)
-    return [x_text, y]
+    ids = np.concatenate([p_id, n_id],0)
+    return [x_text, y, ids]
 
 def batch_iter(data, batch_size, num_epochs, shuffle=True):
     data = np.array(data)

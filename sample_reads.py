@@ -30,12 +30,12 @@ t, n = 0, 4000000
 
 for record in SeqIO.parse(poutfile, "fastq"):
     if t < n:
-        reservoir.append(record.seq)
+        reservoir.append("{},{}".format(record.id, record.seq))
         t += 1
     else:
         m = random.randint(0,t)
         if m < n:
-            reservoir[m] = record.seq
+            reservoir[m] = "{},{}".format(record.id, record.seq)
 
 for record in reservoir:
     

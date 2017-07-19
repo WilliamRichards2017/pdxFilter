@@ -12,8 +12,8 @@ from sklearn.preprocessing import OneHotEncoder
 start_time = time.time()
 
 tf.flags.DEFINE_float("dev_sample_percentage", .01, "Percentage of traning data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for positive data (human reads)")
-tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for \
+tf.flags.DEFINE_string("positive_data_file", "p.txt", "Data source for positive data (human reads)")
+tf.flags.DEFINE_string("negative_data_file", "n.txt", "Data source for \
 negative data (mouse reads)")
 
 # Model Hyperparameters
@@ -43,7 +43,8 @@ for attr, value in sorted(FLAGS.__flags.items()):
 print("")
 
 ## Load data
-x_text, y = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
+x_text, y, ids = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
+
 
 ## Build up vocab
 ## TODO: altar this and use on-hot encoding
@@ -56,7 +57,7 @@ x = np.array(list(vocab_processor.fit_transform(x_text)))
 
 ## use numpy to perform 1hot encoding
 '''enc = OneHotEncoder()
-enc.fit(x)
+senc.fit(x)
 enc.transform(x).toarray()'''
 
 ## Shuffle data
@@ -64,12 +65,15 @@ np.random.seed(421)
 shuffle_indices = np.random.permutation(np.arange(len(y)))
 x_shuffled = x[shuffle_indices]
 y_shuffled = y[shuffle_indices]
+id_shuffled = ids[shuffle_indices]
 
 ## since our data set is large, it is not computationally worth it to use k-fold cross-validation
 ## rather, we split our data randomly into train and test sets
 dev_sample_index = -1 * int(FLAGS.dev_sample_percentage*float(len(y)))
 x_train, x_dev = x_shuffled[:dev_sample_index], x_shuffled[dev_sample_index:]
 y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
+id_train, id_dev = id_shuffled[:dev_sample_index], id_shuffled[dev_sample_index:]
+
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 
 

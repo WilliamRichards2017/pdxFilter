@@ -50,7 +50,7 @@ vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 x_test = np.array(list(vocab_processor.fit_transform(x_raw)))
 
 
-validation_metrics = {
+'''validation_metrics = {
      "precision":
         tf.contrib.learn.MetricSpec(
             metric_fn=tf.contrib.metrics.streaming_precision,
@@ -66,6 +66,7 @@ validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     y_test[1],
     every_n_steps=50,
     metrics=validation_metrics)
+'''
 
 print("\nEvaluating...\n")
 
