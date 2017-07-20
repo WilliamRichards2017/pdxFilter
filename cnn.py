@@ -14,6 +14,7 @@ class cnn(object):
         self.num_filters = num_filters
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, num_classes], name="input_y")
+        self.input_id = tf.placeholder(tf.string, name="input_id")
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
         l2_loss = tf.constant(0.0)
         
@@ -53,7 +54,7 @@ class cnn(object):
             ##self.confidence = tf.concat([tf.self.scores,1), tf.concat([tf.cast(self.predictions, tf.float32), self.input_y],2)],2)
             temp = tf.concat([self.scores, self.input_y],1)
             self.confidence = tf.concat([temp, tf.expand_dims(tf.cast(self.predictions, tf.float32),1)],1)
-            self.ids = self.
+
         # calculate entropy loss
         with tf.name_scope("loss"):
             losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)

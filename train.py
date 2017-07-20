@@ -145,10 +145,11 @@ with tf.Graph().as_default():
             # init variables
             sess.run(tf.global_variables_initializer())
 
-            def train_step(x_batch, y_batch):
+            def train_step(x_batch, y_batch, id_batch):
                 feed_dict = {
                     tcnn.input_x: x_batch,
                     tcnn.input_y: y_batch,
+                    tcnn.input_id: id_batch,
                     tcnn.dropout_keep_prob: FLAGS.dropout_keep_prob
                 }
                 _, step, summaries, loss, accuracy = sess.run(
@@ -161,11 +162,12 @@ with tf.Graph().as_default():
                 train_summary_writer.add_summary(summaries,step)
 
                 ## evaluate model on dev set
-            def dev_step(x_batch, y_batch, writer=None):
+            def dev_step(x_batch, y_batch, id_batch, writer=None):
 
                 feed_dict = {
                     tcnn.input_x: x_batch,
                     tcnn.input_y: y_batch,
+                    tcnn.input_id: id_batch,
                     tcnn.dropout_keep_prob: 1.0
                 }
                 step, summaries, loss, accuracy, confidence = sess.run(
@@ -180,15 +182,15 @@ with tf.Graph().as_default():
                     writer.add_summary(summaries, step)
 
             ## generate batches
-            batches = preprocess.batch_iter(list(zip(x_train, y_train)), FLAGS.batch_size, FLAGS.num_epochs)
+            batches = preprocess.batch_iter(list(zip(x_train, y_train, id_train)), FLAGS.batch_size, FLAGS.num_epochs)
 
             for batch in batches:
-                x_batch, y_batch = zip(*batch)
-                train_step(x_batch, y_batch)
+                x_batch, y_batch, id_batch = zip(*batch)
+                train_step(x_batch, y_batch, id_batch)
                 current_step = tf.train.global_step(sess, global_step)
                 if current_step % FLAGS.evaluate_every==0:
                     print("\nEvaluation:")
-                    dev_step(x_dev, y_dev, writer=dev_summary_writer)
+                    dev_step(x_dev, y_dev, id_dev, writer=dev_summary_writer)
                     print("\nTime spent sampling pos reads: {0:.3f} min.".format((time.time() - start_time) / float(60)))
 
                     print("")

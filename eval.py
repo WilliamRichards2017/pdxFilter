@@ -10,8 +10,8 @@ import csv
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
-tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for human reads." )
-tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for mice reads.")
+tf.flags.DEFINE_string("positive_data_file", "p.txt", "Data source for human reads." )
+tf.flags.DEFINE_string("negative_data_file", "n.txt", "Data source for mice reads.")
 
 tf.flags.DEFINE_string("sample_positive_data_file", "sample_pos.txt", "Sample human reads for evaluation." )
 tf.flags.DEFINE_string("sample_negative_data_file", "sample_neg.txt", "Sample mouse reads for evaluation.")
@@ -34,10 +34,10 @@ print("")
 
 ## load in data to eval on trained model
 if FLAGS.eval_train:
-    x_raw, y_test = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
+    x_raw, y_test, ids = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
     y_test = np.argmax(y_test, axis=1)
 else:
-    x_raw, y_test = preprocess.load_data_and_labels(FLAGS.sample_positive_data_file, FLAGS.sample_negative_data_file)
+    x_raw, y_test, ids = preprocess.load_data_and_labels(FLAGS.sample_positive_data_file, FLAGS.sample_negative_data_file)
     y_test = np.argmax(y_test, axis=1)
 
 ##vocab_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
@@ -85,6 +85,7 @@ with graph.as_default():
 
         input_x = graph.get_operation_by_name("input_x").outputs[0]
         input_y = graph.get_operation_by_name("input_y").outputs[0]
+        ##input_id = graph.get_operation_by_name("input_id").outputs[0]
         dropout_keep_prob=graph.get_operation_by_name("dropout_keep_prob").outputs[0]
 
         predictions = graph.get_operation_by_name("output/predictions").outputs[0]
@@ -93,6 +94,11 @@ with graph.as_default():
         all_predictions=[]
         
         for x_test_batch in batches:
+            ## BAD CODE ALERT~~~~~~~~~~~~~~~
+            ## Figure out how to not do this
+            x_test_batch = x_test_batch[0:64,:187]
+            ## END OF BAD CODE ALERT~~~~~~~~~~~~~~~
+
             batch_predictions = sess.run(predictions, {input_x: x_test_batch, dropout_keep_prob: 1.0})
             all_predictions = np.concatenate([all_predictions, batch_predictions])
 
@@ -103,7 +109,7 @@ if y_test  is not None:
     print("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
 
 
-predictions_human_readable = np.column_stack((np.array(x_raw), all_predictions))
+predictions_human_readable = np.column_stack((ids, all_predictions))
 out_path = os.path.join(FLAGS.checkpoint_dir, "..", "predictioncs.csv")
 print("Saving evaluation to {0}".format(out_path))
 with open(out_path, 'w') as f:

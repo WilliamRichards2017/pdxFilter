@@ -39,8 +39,7 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     n_examples =list(open(negative_data_file, "r", buffering=100000).readlines())
     n_id = [s.split(',')[0] for s in n_examples]
     n_examples = [s.split(',')[1] for s in n_examples]
-    for n in n_examples:
-        print(n)
+
     ## n_examples = [s.strip() for s in n_examples]
     negative_examples=[]
 
@@ -55,6 +54,7 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     negative_labels = [[1,0] for _ in negative_examples]
     y = np.concatenate([positive_labels, negative_labels], 0)
     ids = np.concatenate([p_id, n_id],0)
+
     return [x_text, y, ids]
 
 def batch_iter(data, batch_size, num_epochs, shuffle=True):
