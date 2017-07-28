@@ -26,8 +26,8 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.00, "L2 regularization lambda (default:
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 200, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 1000, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("evaluate_every", 2, "Evaluate model on dev set after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 2, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 
 # Misc Parameters
@@ -77,7 +77,6 @@ id_train, id_dev = id_shuffled[:dev_sample_index], id_shuffled[dev_sample_index:
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 
 
-
 ## Start training our model
 with tf.Graph().as_default():
     session_conf = tf.ConfigProto(
@@ -119,7 +118,7 @@ with tf.Graph().as_default():
             ## loss and accuracy summaries
             loss_summary = tf.summary.scalar("loss", tcnn.loss)
             acc_summary = tf.summary.scalar("accuracy", tcnn.accuracy)
-
+                        
             # train summaries
             train_summary_op = tf.summary.merge([loss_summary, acc_summary, grad_summaries_merged])
             train_summary_dir = os.path.join(out_dir, "summaries", "train")
@@ -137,7 +136,11 @@ with tf.Graph().as_default():
             checkpoint_prefix = os.path.join(checkpoint_dir, "model")
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
+
+            ## confidence = tcnn.confidence
+            ## tf.Print(confidence, [confidence])
             saver = tf.train.Saver(tf.global_variables(), max_to_keep=FLAGS.num_checkpoints)
+
 
             vocab_processor.save(os.path.join(out_dir, "vocab"))
 
@@ -151,6 +154,7 @@ with tf.Graph().as_default():
                     tcnn.input_y: y_batch,
                     tcnn.input_id: id_batch,
                     tcnn.dropout_keep_prob: FLAGS.dropout_keep_prob
+                   
                 }
                 _, step, summaries, loss, accuracy = sess.run(
                     [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy],
@@ -175,12 +179,29 @@ with tf.Graph().as_default():
                     feed_dict
                 )
 
+                '''
+                conf = tf.Variable(confidence, name='conf')
+                y = tf.unstack(tf.transpose(conf, (1,0,2)))
+                for i in y:
+                    print(i)
+               
+                saver = tf.train.Saver({"conf":conf})
+                '''
+                
                 time_str = datetime.datetime.now().isoformat()
-                print("{}: step {}, loss {:g}, acc{:g},".format(time_str,step,loss,accuracy))
-                np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
+                print("{}: step {}, loss {:g}, acc{:g}".format(time_str,step,loss,accuracy))
+                ##print(confidence.shape[0], id_dev.shape[0])
+                '''for i in range(confidence.shape[0]):
+                    print(confidence[i], id_dev[i])
+
+                if confidence.shape[0] == id_dev.shape[0]:
+                    np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
+                    np.savetxt('c_ids.csv', id_dev, delimiter=',', fmt="%s")'''
+
                 if writer:
                     writer.add_summary(summaries, step)
-
+                
+            
             ## generate batches
             batches = preprocess.batch_iter(list(zip(x_train, y_train, id_train)), FLAGS.batch_size, FLAGS.num_epochs)
 

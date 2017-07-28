@@ -1,8 +1,16 @@
 ##convolutional neural network 
 import tensorflow as tf
 import pandas as pd
+from zlib import crc32
+
 
 class cnn(object):
+
+    def byte_to_float(b):
+        return float(crc32(b) & 0xffffffff) / 2**32
+
+    def str_to_float(s, encoding="utf-8"):
+        return byte_to_float(s.encoding)
 
     ## Network definition
     def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0):
@@ -15,6 +23,7 @@ class cnn(object):
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, num_classes], name="input_y")
         self.input_id = tf.placeholder(tf.string, name="input_id")
+        ##self.confidence = tf.placeholder(tf.float32, [None,5], name = "confidence")
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
         l2_loss = tf.constant(0.0)
         
@@ -51,9 +60,17 @@ class cnn(object):
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
             self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
-            ##self.confidence = tf.concat([tf.self.scores,1), tf.concat([tf.cast(self.predictions, tf.float32), self.input_y],2)],2)
             temp = tf.concat([self.scores, self.input_y],1)
-            self.confidence = tf.concat([temp, tf.expand_dims(tf.cast(self.predictions, tf.float32),1)],1)
+            self.confidence = tf.concat([temp, tf.expand_dims(tf.cast(self.predictions, tf.float32),1)],1, name="confidence")
+
+
+            ##print("confidnece in cnn {}".format(confidence.eval()))
+            ##print("confidence in cnn is: {}".format(self.confidence))
+            
+                
+            ##self.confidence  = tf.concat([self.confidence, str_to_float(self.input_id)],1)
+            '''with tf.variable_scope("conf"):
+                confidence = tf.get_variable("confidence", (1,5))'''
 
         # calculate entropy loss
         with tf.name_scope("loss"):
@@ -68,3 +85,4 @@ class cnn(object):
 
             
             
+

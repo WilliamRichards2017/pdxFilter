@@ -17,7 +17,8 @@ tf.flags.DEFINE_string("sample_positive_data_file", "sample_pos.txt", "Sample hu
 tf.flags.DEFINE_string("sample_negative_data_file", "sample_neg.txt", "Sample mouse reads for evaluation.")
 
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size: (default: 64)")
-tf.flags.DEFINE_string("checkpoint_dir", "/uufs/chpc.utah.edu/common/home/u0401321/classifier/runs/1499288992/checkpoints/", "Checkpoint directory from training run")
+tf.flags.DEFINE_string("checkpoint_dir", "/uufs/chpc.utah.edu/common/home/u0401321/classifier/runs/1501259215/checkpoints/", "Checkpoint directory from training run") 
+
 tf.flags.DEFINE_boolean("eval_train", True, "Evaluate on all training data")
 
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow soft device placement")
@@ -82,25 +83,29 @@ with graph.as_default():
     with sess.as_default():
         saver = tf.train.import_meta_graph("{}.meta".format(checkpoint_file))
         saver.restore(sess, checkpoint_file)
+        ##print([v.op.name for v in tf.all_variables()])
 
         input_x = graph.get_operation_by_name("input_x").outputs[0]
         input_y = graph.get_operation_by_name("input_y").outputs[0]
-        ##input_id = graph.get_operation_by_name("input_id").outputs[0]
+        scores = graph.get_operation_by_name("output/scores").outputs[0]
+                
+        input_id = graph.get_operation_by_name("input_id").outputs[0]
         dropout_keep_prob=graph.get_operation_by_name("dropout_keep_prob").outputs[0]
 
         predictions = graph.get_operation_by_name("output/predictions").outputs[0]
-
         batches = preprocess.batch_iter(list(x_test), FLAGS.batch_size, 1, shuffle=False)
         all_predictions=[]
-        
-        for x_test_batch in batches:
-            ## BAD CODE ALERT~~~~~~~~~~~~~~~
-            ## Figure out how to not do this
-            x_test_batch = x_test_batch[0:64,:187]
-            ## END OF BAD CODE ALERT~~~~~~~~~~~~~~~
+        all_scores= np.zeros((0,2))
 
-            batch_predictions = sess.run(predictions, {input_x: x_test_batch, dropout_keep_prob: 1.0})
+        for x_test_batch in batches:
+             ## BAD CODE ALERT~~~~~~~~~~~~~~~
+             ## Figure out how to not do this
+             ##x_test_batch = x_test_batch[0:64,:187]
+             ## END OF BAD CODE ALERT~~~~~~~~~~~~~~~
+
+            batch_predictions, batch_scores = sess.run([predictions, scores], {input_x: x_test_batch, dropout_keep_prob: 1.0})
             all_predictions = np.concatenate([all_predictions, batch_predictions])
+            all_scores = np.concatenate([all_scores, batch_scores])
 
 
 if y_test  is not None:
@@ -108,9 +113,12 @@ if y_test  is not None:
     print("Total number of test examples: {}".format(len(y_test)))
     print("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
 
-
+    
+print("all_scores {} {}".format(all_scores.shape[0], all_scores.shape[1]))
 predictions_human_readable = np.column_stack((ids, all_predictions))
-out_path = os.path.join(FLAGS.checkpoint_dir, "..", "predictioncs.csv")
+predictions_human_readable = np.column_stack((predictions_human_readable, all_scores))
+print("predictions_human_readable {} {}".format(predictions_human_readable.shape[0], predictions_human_readable.shape[1]))
+out_path = os.path.join(FLAGS.checkpoint_dir, "", "predictions.csv")
 print("Saving evaluation to {0}".format(out_path))
 with open(out_path, 'w') as f:
     csv.writer(f).writerows(predictions_human_readable)
