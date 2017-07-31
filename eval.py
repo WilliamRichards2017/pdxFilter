@@ -12,6 +12,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 tf.flags.DEFINE_string("positive_data_file", "p.txt", "Data source for human reads." )
 tf.flags.DEFINE_string("negative_data_file", "n.txt", "Data source for mice reads.")
+tf.flags.DEFINE_string("unknown_data_file", "unknown.txt", "Data source for unknwon reads.")
 
 tf.flags.DEFINE_string("sample_positive_data_file", "sample_pos.txt", "Sample human reads for evaluation." )
 tf.flags.DEFINE_string("sample_negative_data_file", "sample_neg.txt", "Sample mouse reads for evaluation.")
@@ -20,6 +21,7 @@ tf.flags.DEFINE_integer("batch_size", 64, "Batch Size: (default: 64)")
 tf.flags.DEFINE_string("checkpoint_dir", "/uufs/chpc.utah.edu/common/home/u0401321/classifier/runs/1501259215/checkpoints/", "Checkpoint directory from training run") 
 
 tf.flags.DEFINE_boolean("eval_train", True, "Evaluate on all training data")
+tf.flags.DEFINE_boolean("eval_unknown", True, "Evaluate on unknown data set")
 
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of operations on  device")
@@ -41,6 +43,8 @@ else:
     x_raw, y_test, ids = preprocess.load_data_and_labels(FLAGS.sample_positive_data_file, FLAGS.sample_negative_data_file)
     y_test = np.argmax(y_test, axis=1)
 
+if Flags.eval_unknown:
+    x_raw, y_test, ids = preprocess.load_data_and_label(Flags.unknown_data_file)
 ##vocab_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
 ##vocab_path = '~/classifier/vocab'
 ##vocab_processor = learn.preprocessing.VocabularyProcessor.restore(vocab_path)

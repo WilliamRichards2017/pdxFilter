@@ -7,29 +7,29 @@ import sys
 import random
 import argparse 
 
-parser = argparse.ArgumentParser(description='randomly sample  reads from (a) fastq file(s)')
+parser = argparse.ArgumentParser(description='randomly sample N reads from fastq file(s), optional quality filter')
 parser.add_argument('-N', nargs=1, help="number of reads to sample from file(s)", type=int)
-parser.add_argument('-s', nargs=1, help="sample reads from single file")
-parser.add_argument('-d', nargs=2, help="sample reads from a positive and negative files, return two seperate .txt files")
+parser.add_argument('-s', nargs=1, help="sample reads from a single fastq file writes out to unknown.txt")
+parser.add_argument('-d', nargs=2, help="sample reads from a positive and negative fastqx files, writes out to pos.txt and neg.txt respectively")
 parser.add_argument('-q', nargs=1, help="minimum_phread_quality for all bases in a read for quality filter")
 args = parser.parse_args()
 
 if args.N:
     n = args.N
 else:
-    n = 10000000
+    n = 40000000
 
 if args.q and args.d:
     poutfile, noutfile = d[0], d[1]
     q =args.q
 
     good_reads = (rec for rec in SeqIO.parse(poutfile, "fastq")
-    if min(rec.letter_annotations["phred_quality"]) >= q):
+                  if min(rec.letter_annotations["phred_quality"]) >= q)
     count = SeqIO.write(good_reads, "good_quality_pos.fastq", "fastq")  
 
 
     good_reads = (rec for rec in SeqIO.parse(noutfile, "fastq")
-    if min(rec.letter_annotations["phred_quality"]) >= q):
+                  if min(rec.letter_annotations["phred_quality"]) >= q)
     count = SeqIO.write(good_reads, "good_quality_neg.fastq", "fastq")                                                                                                          
 
 if args.q and args.s:
@@ -37,7 +37,7 @@ if args.q and args.s:
     q = args.q
     
     good_reads = (rec for rec in SeqIO.parse(uoutfile, "fastq")
-    if min(rec.letter_annotations["phred_quality"]) >= q):
+                  if min(rec.letter_annotations["phred_quality"]) >= q)
     count = SeqIO.write(good_reads, "good_quality_unknown.fastq", "fastq")
 
 if args.d:
@@ -81,7 +81,7 @@ if args.d:
     for record in reservoir:
         f.write(str(record)+'\n')
 
-else if args.s:
+if args.s:
     uoutfile = args.s
     if args.q:
        uoutfile  = 'good_quality_unknown.txt'

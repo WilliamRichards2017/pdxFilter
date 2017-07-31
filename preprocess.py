@@ -57,6 +57,28 @@ def load_data_and_labels(positive_data_file, negative_data_file):
 
     return [x_text, y, ids]
 
+def load_data_and_label(unknown_data_file):
+    print("Loading data and labels")
+    examples = list(open(unknown_data_file, "r", buffering=100000).readlines())
+    examples = [s.strip() for s in examples]
+
+    id = [s.split(',')[0] for s in examples]
+    examples = [s.split(',')[1] for s in examples]
+
+    sentences = []
+    for s in examples:
+        sent = Sentence(s).build_sentence(s)
+        sentences.append(Sentence(s).build_sentence(s))
+
+
+    x_text = sentences
+    x_text = [clean_str(sent) for sent in sentences]
+
+    y = [[0,1] for _ in x_text]
+
+    return [x_text, y, ids]
+
+
 def batch_iter(data, batch_size, num_epochs, shuffle=True):
     data = np.array(data)
     data_size = len(data)
