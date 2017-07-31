@@ -34,7 +34,6 @@ for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.upper(), value))
 print("")
 
-
 ## load in data to eval on trained model
 if FLAGS.eval_train:
     x_raw, y_test, ids = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
@@ -43,18 +42,15 @@ else:
     x_raw, y_test, ids = preprocess.load_data_and_labels(FLAGS.sample_positive_data_file, FLAGS.sample_negative_data_file)
     y_test = np.argmax(y_test, axis=1)
 
+# use different preprocessing function if using a single unknown data source
 if Flags.eval_unknown:
     x_raw, y_test, ids = preprocess.load_data_and_label(Flags.unknown_data_file)
-##vocab_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
-##vocab_path = '~/classifier/vocab'
-##vocab_processor = learn.preprocessing.VocabularyProcessor.restore(vocab_path)
-##x_test = np.array(list(vocab_processor.transform(x_raw)))
 
 max_document_length = max([len(x.split(" ")) for x in x_raw])
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 x_test = np.array(list(vocab_processor.fit_transform(x_raw)))
 
-
+## TODO- get precision and recall metrics working
 '''validation_metrics = {
      "precision":
         tf.contrib.learn.MetricSpec(
@@ -87,7 +83,6 @@ with graph.as_default():
     with sess.as_default():
         saver = tf.train.import_meta_graph("{}.meta".format(checkpoint_file))
         saver.restore(sess, checkpoint_file)
-        ##print([v.op.name for v in tf.all_variables()])
 
         input_x = graph.get_operation_by_name("input_x").outputs[0]
         input_y = graph.get_operation_by_name("input_y").outputs[0]
@@ -102,26 +97,18 @@ with graph.as_default():
         all_scores= np.zeros((0,2))
 
         for x_test_batch in batches:
-             ## BAD CODE ALERT~~~~~~~~~~~~~~~
-             ## Figure out how to not do this
-             ##x_test_batch = x_test_batch[0:64,:187]
-             ## END OF BAD CODE ALERT~~~~~~~~~~~~~~~
-
             batch_predictions, batch_scores = sess.run([predictions, scores], {input_x: x_test_batch, dropout_keep_prob: 1.0})
             all_predictions = np.concatenate([all_predictions, batch_predictions])
             all_scores = np.concatenate([all_scores, batch_scores])
-
 
 if y_test  is not None:
     correct_predictions = float(sum(all_predictions == y_test))
     print("Total number of test examples: {}".format(len(y_test)))
     print("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
 
-    
-print("all_scores {} {}".format(all_scores.shape[0], all_scores.shape[1]))
+
 predictions_human_readable = np.column_stack((ids, all_predictions))
 predictions_human_readable = np.column_stack((predictions_human_readable, all_scores))
-print("predictions_human_readable {} {}".format(predictions_human_readable.shape[0], predictions_human_readable.shape[1]))
 out_path = os.path.join(FLAGS.checkpoint_dir, "", "predictions.csv")
 print("Saving evaluation to {0}".format(out_path))
 with open(out_path, 'w') as f:

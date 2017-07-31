@@ -52,16 +52,10 @@ max_document_length = max([len(x.split(" ")) for x in x_text])
 
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 
-
 x = np.array(list(vocab_processor.fit_transform(x_text)))
 
-## use numpy to perform 1hot encoding
-'''enc = OneHotEncoder()
-senc.fit(x)
-enc.transform(x).toarray()'''
-
 ## Shuffle data
-np.random.seed(421)
+np.random.seed(420)
 shuffle_indices = np.random.permutation(np.arange(len(y)))
 x_shuffled = x[shuffle_indices]
 y_shuffled = y[shuffle_indices]
@@ -96,6 +90,7 @@ with tf.Graph().as_default():
         
         ## define training proceucur
         global_step = tf.Variable(0, name="global_step",trainable=False)
+        # Use Adam optimization, a first-order gradient-based optimazation method for stochastic objective functions 
         optimizer = tf.train.AdamOptimizer(1e-3)
         grads_and_vars = optimizer.compute_gradients(tcnn.loss)
         train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
@@ -137,25 +132,22 @@ with tf.Graph().as_default():
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
 
-            ## confidence = tcnn.confidence
-            ## tf.Print(confidence, [confidence])
             saver = tf.train.Saver(tf.global_variables(), max_to_keep=FLAGS.num_checkpoints)
-
 
             vocab_processor.save(os.path.join(out_dir, "vocab"))
 
-
             # init variables
             sess.run(tf.global_variables_initializer())
-
+            
+            #Perform a single training step on batch of data
             def train_step(x_batch, y_batch, id_batch):
                 feed_dict = {
                     tcnn.input_x: x_batch,
                     tcnn.input_y: y_batch,
                     tcnn.input_id: id_batch,
                     tcnn.dropout_keep_prob: FLAGS.dropout_keep_prob
-                   
                 }
+                ## Run tensorflow session to calculate desired information of our batch
                 _, step, summaries, loss, accuracy = sess.run(
                     [train_op, global_step, train_summary_op, tcnn.loss, tcnn.accuracy],
                     feed_dict
@@ -178,31 +170,14 @@ with tf.Graph().as_default():
                     [global_step, dev_summary_op, tcnn.loss, tcnn.accuracy, tcnn.confidence],
                     feed_dict
                 )
-
-                '''
-                conf = tf.Variable(confidence, name='conf')
-                y = tf.unstack(tf.transpose(conf, (1,0,2)))
-                for i in y:
-                    print(i)
-               
-                saver = tf.train.Saver({"conf":conf})
-                '''
                 
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: step {}, loss {:g}, acc{:g}".format(time_str,step,loss,accuracy))
-                ##print(confidence.shape[0], id_dev.shape[0])
-                '''for i in range(confidence.shape[0]):
-                    print(confidence[i], id_dev[i])
-
-                if confidence.shape[0] == id_dev.shape[0]:
-                    np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
-                    np.savetxt('c_ids.csv', id_dev, delimiter=',', fmt="%s")'''
-
                 if writer:
                     writer.add_summary(summaries, step)
                 
             
-            ## generate batches
+            ## generate batches from preprocess.py
             batches = preprocess.batch_iter(list(zip(x_train, y_train, id_train)), FLAGS.batch_size, FLAGS.num_epochs)
 
             for batch in batches:

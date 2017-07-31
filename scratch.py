@@ -16,7 +16,7 @@ feed forward + backprop = 1 epoch
 '''
 one-hot encoding useful for multiclass classification
 '''
-3
+
 ## import exampel tensorflow data set of hand written digits
 ##from tensorflow.examples.tutorials.mnist import input_data
 
