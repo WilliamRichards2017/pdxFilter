@@ -11,10 +11,14 @@ If you have a known positive and negative data source, you can run
 
 which will return a pos.txt and neg.txt file containing sampled reads
 If you have a single unknown (mixed/contaminated) data sources, you can run
-    'python3 sample_reads.py -s unknown.fastq'
+
+        'python3 sample_reads.py -s unknown.fastq'
+
 which will return an unknown.txt file conftaining sampled reads
 Run the command 
-    'python3 sample_reads.py --help'
+
+        'python3 sample_reads.py --help'
+
  to see aditional optional preprocessing parameters
       
 # Part 2 - Training - train.py
@@ -31,7 +35,7 @@ by changing the 'pos.txt' and 'neg.txt' fields to your corresponding preprocesse
 Evaluation can be used to evaluate a model, or to generate predictions for an unknown dataset.
 To evaluate a model on labeled data, simply run 
 
-   'python3 eval.py' 
+      'python3 eval.py' 
 
 This will restore the most recent trained model, and will then procede to evaluate the models performance on the positive and negative data fields specified in like 13 and 14. The default data fields are once again pos.txt and neg.txt
 To generate predictions on unknown data, change the value for the eval_unkown flag on line 24 from False, to True.  This will write out the models classification predictions for the reads contained in the file unknown.txt.  This file name can be changed on line 18 of eval.py.  The predictions will be written out to 'predictions.csv'
