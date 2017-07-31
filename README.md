@@ -27,7 +27,7 @@ The default input files for training are 'pos.txt' and 'neg.txt', but these can 
 
 by changing the 'pos.txt' and 'neg.txt' fields to your corresponding preprocessed files
 
-#Part 3 - Evaluation/Prediction - eval.py
+# Part 3 - Evaluation/Prediction - eval.py
 Evaluation can be used to evaluate a model, or to generate predictions for an unknown dataset.
 To evaluate a model on labeled data, simply run 
 
