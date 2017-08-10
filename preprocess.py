@@ -33,8 +33,9 @@ def load_data_and_labels(positive_data_file, negative_data_file):
 
     positive_examples=[]
     for s in p_examples:
+        s = clean_str(s)
         sent = Sentence(s).build_sentence(s)
-        positive_examples.append(Sentence(s).build_sentence(s))
+        positive_examples.append(sent)
 
     n_examples =list(open(negative_data_file, "r", buffering=100000).readlines())
     n_id = [s.split(',')[0] for s in n_examples]
@@ -44,11 +45,12 @@ def load_data_and_labels(positive_data_file, negative_data_file):
     negative_examples=[]
 
     for n in n_examples:
+        n = clean_str(n)
         sent = Sentence(n).build_sentence(n)
         negative_examples.append(sent)
-        
+    
     x_text = positive_examples + negative_examples
-    x_text = [clean_str(sent) for sent in x_text]
+    ## x_text = [clean_str(sent) for sent in x_text]
     
     positive_labels = [[0,1] for _ in positive_examples]
     negative_labels = [[1,0] for _ in negative_examples]

@@ -10,8 +10,8 @@ import csv
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
-tf.flags.DEFINE_string("positive_data_file", "p.txt", "Data source for human reads." )
-tf.flags.DEFINE_string("negative_data_file", "n.txt", "Data source for mice reads.")
+tf.flags.DEFINE_string("positive_data_file", "pos_60.txt", "Data source for human reads." )
+tf.flags.DEFINE_string("negative_data_file", "neg_40.txt", "Data source for mice reads.")
 tf.flags.DEFINE_string("unknown_data_file", "unknown.txt", "Data source for unknwon reads.")
 
 tf.flags.DEFINE_string("sample_positive_data_file", "sample_pos.txt", "Sample human reads for evaluation." )

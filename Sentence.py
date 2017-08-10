@@ -25,7 +25,6 @@ class Sentence:
             word = read[x:x+25]
             sentence += word + " "
         '''
-            
         return sentence
 
     def build_input_matrix(self, read):

@@ -12,9 +12,8 @@ from sklearn.preprocessing import OneHotEncoder
 start_time = time.time()
 
 tf.flags.DEFINE_float("dev_sample_percentage", .01, "Percentage of traning data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", "p.txt", "Data source for positive data (human reads)")
-tf.flags.DEFINE_string("negative_data_file", "n.txt", "Data source for \
-negative data (mouse reads)")
+tf.flags.DEFINE_string("positive_data_file", "pos.txt", "Data source for positive data (human reads)")
+tf.flags.DEFINE_string("negative_data_file", "neg.txt", "Data source for negative data (mouse reads)")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 125, "Dimensionality of character embedding (default: 128)")
@@ -26,8 +25,8 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.00, "L2 regularization lambda (default:
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 2, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 2, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("evaluate_every", 500, "Evaluate model on dev set after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 1000, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 
 # Misc Parameters
@@ -44,7 +43,6 @@ print("")
 
 ## Load data
 x_text, y, ids = preprocess.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
-
 
 ## Build up vocab
 ## TODO: altar this and use on-hot encoding
@@ -173,6 +171,7 @@ with tf.Graph().as_default():
                 
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: step {}, loss {:g}, acc{:g}".format(time_str,step,loss,accuracy))
+                np.savetxt( 'confidence.csv', confidence, delimiter=',', fmt='%.5e')
                 if writer:
                     writer.add_summary(summaries, step)
                 
