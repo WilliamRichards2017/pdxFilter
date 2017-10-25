@@ -58,21 +58,6 @@ will take a `~/pdxFilter/predictions.csv` file, and return a file filtered_reads
 	Numpy
 	Pandas
 	ParseFastQ
-	
-# Citations/Aknowledgement
-
-Used bag of word model for CNN input as described in this paper:
-	Nguyen, N.G., Tran, V.A., Ngo, D.L., Phan, D., Lumbanraja, F.R., Faisal, M.R., Abapihi, B., Kubo, M. and Satou, K. (2016) DNA Sequence Classification by Convolutional Neural Network. J. Biomedical Science and Engineering, 9, 280-286. http://dx.doi.org/10.4236/jbise.2016.95021
-
-Adapted much of the CNN code from this tensorflow blogpost tutorial
-	Britz, Denny. "Implementing a CNN for Text Classification in TensorFlow." Web log post. WILDML. N.p., 11 Dec. 2015. Web. 1 Aug. 2017
-
-We can filter our predictions based on the confidence of each prediction.  Running the command:
-
-     'python3 filter.py'
-
-will take a `~/pdxFilter/predictions.csv` file, and return a file filtered_reads.fastq.  This file will remove all negative reads from the unknown data s\
-et that are above a certain confidence threshold.
 
 ## Dependancies
         Tensorflow
